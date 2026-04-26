@@ -31,6 +31,9 @@ namespace GaviShooting.Entry
 
         private const int FPS = 60;
 
+        private StageData _stageData;
+        private IBulletViewWriter _bulletViewWriter;
+
         private void Start()
         {
             Log.Info("GameEntry.Start");
@@ -41,7 +44,7 @@ namespace GaviShooting.Entry
             _collisionSystem = new CollisionSystem();
             _fsm = new StateMachine();
 
-            var stageData = new StageData
+            _stageData = new StageData
             {
                 StageName = "Stage 1",
                 TotalFrames = 3600,
@@ -49,25 +52,21 @@ namespace GaviShooting.Entry
                 BossFrame = 3000,
                 SpawnEvents = createDefaultSpawnEvents()
             };
-            _stageTimeline = new StageTimeline(stageData);
+            _stageTimeline = new StageTimeline(_stageData);
 
             _gameView = _gameViewRoot.gameObject.AddComponent<GameView>();
             _gameView.Init(_entityManager, _playerPrefab, _enemyPrefab, _bulletPrefab, _itemPrefab, _scrollView, _uiView);
 
-            _scrollView.Init(stageData.ScrollSpeed);
+            _scrollView.Init(_stageData.ScrollSpeed);
 
-            var playerView = _gameView.GetPlayerView();
-            _player = new PlayerLogic(0, -6f, 0f, playerView);
-            _entityManager.EnqueueSpawn(_player);
-            _entityManager.ProcessQueue();
-            playerView.Activate(_player);
-            _gameView.RegisterView(_player.Id, playerView);
+            spawnPlayer();
 
-            var bulletViewWriter = _gameView.GetBulletView();
-            bulletViewWriter.gameObject.SetActive(false);
+            var bulletView = _gameView.GetBulletView();
+            bulletView.gameObject.SetActive(false);
+            _bulletViewWriter = bulletView;
 
             _inputView = gameObject.AddComponent<InputView>();
-            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, bulletViewWriter);
+            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, _bulletViewWriter, RestartGame);
 
             _fsm.AddState(eGameState.Ready, new ReadyState(_uiView));
             _fsm.AddState(eGameState.Playing, new PlayingState(
@@ -79,6 +78,34 @@ namespace GaviShooting.Entry
             _fsm.ChangeState(eGameState.Ready);
 
             Log.Info("GameEntry.Start complete");
+        }
+
+        private void spawnPlayer()
+        {
+            var playerView = _gameView.GetPlayerView();
+            _player = new PlayerLogic(0, -6f, 0f, playerView);
+            _entityManager.EnqueueSpawn(_player);
+            _entityManager.ProcessQueue();
+            playerView.Activate(_player);
+            _gameView.RegisterView(_player.Id, playerView);
+        }
+
+        public void RestartGame()
+        {
+            Log.Info("GameEntry.RestartGame");
+            _gameView.Clear();
+            _entityManager.Clear();
+            _stageTimeline.Reset();
+
+            spawnPlayer();
+
+            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, _bulletViewWriter, RestartGame);
+
+            _fsm.AddState(eGameState.Playing, new PlayingState(
+                _entityManager, _collisionSystem, _commandQueue, _stageTimeline,
+                _player, _scrollView, _uiView, _fsm, createEnemy));
+
+            _fsm.ChangeState(eGameState.Playing);
         }
 
         private void Update()
