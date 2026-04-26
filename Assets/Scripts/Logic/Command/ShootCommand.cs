@@ -7,17 +7,18 @@ namespace GaviShooting.Logic.Command
     {
         private readonly PlayerLogic _player;
         private readonly EntityManager _entityManager;
-        private readonly IBulletViewWriter _bulletViewWriter;
+        private readonly System.Func<float, float, float, float, bool, int, BulletLogic> _bulletFactory;
 
         private const float BULLET_SPEED = 10f / 60f;
         private const int BULLET_DAMAGE = 10;
         private const float SPREAD_ANGLE = 0.15f;
 
-        public ShootCommand(PlayerLogic player, EntityManager entityManager, IBulletViewWriter bulletViewWriter)
+        public ShootCommand(PlayerLogic player, EntityManager entityManager,
+            System.Func<float, float, float, float, bool, int, BulletLogic> bulletFactory)
         {
             _player = player;
             _entityManager = entityManager;
-            _bulletViewWriter = bulletViewWriter;
+            _bulletFactory = bulletFactory;
         }
 
         public void Execute()
@@ -41,7 +42,7 @@ namespace GaviShooting.Logic.Command
 
         private void spawnBullet(float x, float y, float speed, float angleY)
         {
-            var bullet = new BulletLogic(0, x + 0.5f, y, speed, angleY, true, BULLET_DAMAGE, _bulletViewWriter);
+            var bullet = _bulletFactory(x + 0.5f, y, speed, angleY, true, BULLET_DAMAGE);
             _entityManager.EnqueueSpawn(bullet);
         }
     }

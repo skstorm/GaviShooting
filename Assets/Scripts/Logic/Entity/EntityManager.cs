@@ -13,12 +13,12 @@ namespace GaviShooting.Logic.Entity
 
         public IReadOnlyList<IEntity> Entities => _entities;
 
-        public int EnqueueSpawn(IEntity entity)
+        public int NextId() => _nextId++;
+
+        public void EnqueueSpawn(IEntity entity)
         {
-            int id = _nextId++;
             _spawnQueue.Enqueue(entity);
-            Log.Info("EntityManager.EnqueueSpawn id={0} type={1}", id, entity.GetType().Name);
-            return id;
+            Log.Info("EntityManager.EnqueueSpawn id={0} type={1}", entity.Id, entity.GetType().Name);
         }
 
         /// <summary>

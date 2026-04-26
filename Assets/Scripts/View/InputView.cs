@@ -13,19 +13,20 @@ namespace GaviShooting.View
         private PlayerLogic _player;
         private EntityManager _entityManager;
         private StateMachine _fsm;
-        private IBulletViewWriter _bulletViewWriter;
+        private System.Func<float, float, float, float, bool, int, BulletLogic> _bulletFactory;
         private System.Action _onRestart;
         private int _shootCooldown;
 
         private const int SHOOT_INTERVAL = 6;
 
-        public void Init(ICommandQueue commandQueue, PlayerLogic player, EntityManager entityManager, StateMachine fsm, IBulletViewWriter bulletViewWriter, System.Action onRestart = null)
+        public void Init(ICommandQueue commandQueue, PlayerLogic player, EntityManager entityManager, StateMachine fsm,
+            System.Func<float, float, float, float, bool, int, BulletLogic> bulletFactory, System.Action onRestart = null)
         {
             _commandQueue = commandQueue;
             _player = player;
             _entityManager = entityManager;
             _fsm = fsm;
-            _bulletViewWriter = bulletViewWriter;
+            _bulletFactory = bulletFactory;
             _onRestart = onRestart;
             Log.Info("InputView.Init");
         }
@@ -67,7 +68,7 @@ namespace GaviShooting.View
             _shootCooldown--;
             if (keyboard.spaceKey.isPressed && _shootCooldown <= 0)
             {
-                _commandQueue.Enqueue(new ShootCommand(_player, _entityManager, _bulletViewWriter));
+                _commandQueue.Enqueue(new ShootCommand(_player, _entityManager, _bulletFactory));
                 _shootCooldown = SHOOT_INTERVAL;
             }
         }

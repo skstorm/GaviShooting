@@ -46,6 +46,10 @@ namespace GaviShooting.View
 
         public void RegisterView(int entityId, IEntityView view)
         {
+            if (_activeViews.TryGetValue(entityId, out var oldView) && oldView != view)
+            {
+                ReturnView(oldView);
+            }
             _activeViews[entityId] = view;
         }
 
@@ -76,7 +80,7 @@ namespace GaviShooting.View
             for (int i = 0; i < _removeBuffer.Count; i++)
             {
                 var view = _activeViews[_removeBuffer[i]];
-                view.Deactivate();
+                ReturnView(view);
                 _activeViews.Remove(_removeBuffer[i]);
             }
 
@@ -87,10 +91,33 @@ namespace GaviShooting.View
         {
             foreach (var kvp in _activeViews)
             {
-                kvp.Value.Deactivate();
+                ReturnView(kvp.Value);
             }
             _activeViews.Clear();
             Log.Info("GameView.Clear");
+        }
+
+        private void ReturnView(IEntityView view)
+        {
+            switch (view)
+            {
+                case PlayerView playerView:
+                    _playerPool.Return(playerView);
+                    break;
+                case EnemyView enemyView:
+                    _enemyPool.Return(enemyView);
+                    break;
+                case BulletView bulletView:
+                    _bulletPool.Return(bulletView);
+                    break;
+                case ItemView itemView:
+                    _itemPool.Return(itemView);
+                    break;
+                default:
+                    view.Deactivate();
+                    Log.Warn("GameView.ReturnView unknown view type={0}", view.GetType().Name);
+                    break;
+            }
         }
     }
 }

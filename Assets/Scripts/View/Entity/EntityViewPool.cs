@@ -27,8 +27,8 @@ namespace GaviShooting.View.Entity
         public void Return(TView view)
         {
             view.Deactivate();
-            view.gameObject.SetActive(false);
             _pool.Push(view);
+            Log.Info("EntityViewPool.Return type={0} poolCount={1}", typeof(TView).Name, _pool.Count);
         }
     }
 }

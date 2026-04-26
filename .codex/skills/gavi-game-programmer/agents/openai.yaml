@@ -1,0 +1,7 @@
+interface:
+  display_name: "Gavi Game Programmer"
+  short_description: "Unity C# rules for GaviShooting."
+  default_prompt: "Use $gavi-game-programmer when editing the GaviShooting Unity project."
+
+policy:
+  allow_implicit_invocation: true

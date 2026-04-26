@@ -32,7 +32,6 @@ namespace GaviShooting.Entry
         private const int FPS = 60;
 
         private StageData _stageData;
-        private IBulletViewWriter _bulletViewWriter;
 
         private void Start()
         {
@@ -61,12 +60,8 @@ namespace GaviShooting.Entry
 
             spawnPlayer();
 
-            var bulletView = _gameView.GetBulletView();
-            bulletView.gameObject.SetActive(false);
-            _bulletViewWriter = bulletView;
-
             _inputView = gameObject.AddComponent<InputView>();
-            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, _bulletViewWriter, RestartGame);
+            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, createBullet, RestartGame);
 
             _fsm.AddState(eGameState.Ready, new ReadyState(_uiView));
             _fsm.AddState(eGameState.Playing, new PlayingState(
@@ -83,7 +78,7 @@ namespace GaviShooting.Entry
         private void spawnPlayer()
         {
             var playerView = _gameView.GetPlayerView();
-            _player = new PlayerLogic(0, -6f, 0f, playerView);
+            _player = new PlayerLogic(_entityManager.NextId(), -6f, 0f, playerView);
             _entityManager.EnqueueSpawn(_player);
             _entityManager.ProcessQueue();
             playerView.Activate(_player);
@@ -99,7 +94,7 @@ namespace GaviShooting.Entry
 
             spawnPlayer();
 
-            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, _bulletViewWriter, RestartGame);
+            _inputView.Init(_commandQueue, _player, _entityManager, _fsm, createBullet, RestartGame);
 
             _fsm.AddState(eGameState.Playing, new PlayingState(
                 _entityManager, _collisionSystem, _commandQueue, _stageTimeline,
@@ -123,6 +118,15 @@ namespace GaviShooting.Entry
             }
         }
 
+        private BulletLogic createBullet(float x, float y, float speedX, float speedY, bool isPlayerBullet, int damage)
+        {
+            var view = _gameView.GetBulletView();
+            var bullet = new BulletLogic(_entityManager.NextId(), x, y, speedX, speedY, isPlayerBullet, damage, view);
+            view.Activate(bullet);
+            _gameView.RegisterView(bullet.Id, view);
+            return bullet;
+        }
+
         private EnemyLogic createEnemy(eEnemyType type, float x, float y)
         {
             var view = _gameView.GetEnemyView();
@@ -141,7 +145,7 @@ namespace GaviShooting.Entry
                     hp = 20; speed = 3f / 60f; contactDamage = 20; score = 100; hitRadius = 0.4f; break;
             }
 
-            var enemy = new EnemyLogic(0, type, x, y, hp, speed, contactDamage, score, hitRadius, view);
+            var enemy = new EnemyLogic(_entityManager.NextId(), type, x, y, hp, speed, contactDamage, score, hitRadius, view);
             view.Activate(enemy);
             _gameView.RegisterView(enemy.Id, view);
             return enemy;
