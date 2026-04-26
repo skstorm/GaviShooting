@@ -83,6 +83,8 @@ namespace GaviShooting.Entry
 
         private void Update()
         {
+            _commandQueue.ProcessAll();
+
             int deltaFrame = _frameManager.CalcDeltaFrame(Time.deltaTime);
             for (int i = 0; i < deltaFrame; i++)
             {

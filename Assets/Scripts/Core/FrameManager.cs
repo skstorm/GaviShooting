@@ -18,7 +18,6 @@ namespace GaviShooting.Core
             _accumulator += deltaTime;
             int frames = (int)(_accumulator / _secPerFrame);
             _accumulator -= frames * _secPerFrame;
-            Log.Info("FrameManager.CalcDeltaFrame deltaTime={0:F4} frames={1}", deltaTime, frames);
             return frames;
         }
     }
