@@ -1,0 +1,14 @@
+{
+    "name": "GaviShooting.Entry",
+    "rootNamespace": "GaviShooting.Entry",
+    "references": ["GaviShooting.Core", "GaviShooting.Logic", "GaviShooting.View", "Unity.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
