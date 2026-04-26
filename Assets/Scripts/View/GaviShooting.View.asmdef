@@ -1,7 +1,7 @@
 {
     "name": "GaviShooting.View",
     "rootNamespace": "GaviShooting.View",
-    "references": ["GaviShooting.Core", "GaviShooting.Logic"],
+    "references": ["GaviShooting.Core", "GaviShooting.Logic", "Unity.InputSystem"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
