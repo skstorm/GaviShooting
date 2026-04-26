@@ -1,0 +1,14 @@
+{
+    "name": "GaviShooting.View",
+    "rootNamespace": "GaviShooting.View",
+    "references": ["GaviShooting.Core", "GaviShooting.Logic"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
